@@ -27,9 +27,13 @@ public class userController {
         return ResponseEntity.ok().body(userService.getRoles());
     }
 
-    @GetMapping("/{uesername}")
-    public ResponseEntity<user> getUser(@PathVariable String username){
-        return ResponseEntity.ok().body(userService.getUser(username));
+    @GetMapping("/{id}")
+    public ResponseEntity<user> getUser(@PathVariable long id, @RequestHeader String Authorization){
+        return ResponseEntity.ok().body(userService.getUser(id,Authorization));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable long id,@RequestHeader String Authorization){
+        return ResponseEntity.ok().body(userService.deleteUser(id,Authorization));
     }
 
     @PostMapping("")
