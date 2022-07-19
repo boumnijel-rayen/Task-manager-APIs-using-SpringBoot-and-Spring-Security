@@ -7,7 +7,9 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -28,7 +30,7 @@ public class userController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<user> getUser(@PathVariable long id, @RequestHeader String Authorization){
+    public ResponseEntity<user> getUser(@PathVariable long id, @RequestHeader String Authorization) throws IOException {
         return ResponseEntity.ok().body(userService.getUser(id,Authorization));
     }
     @DeleteMapping("/{id}")
@@ -37,8 +39,8 @@ public class userController {
     }
 
     @PostMapping("")
-    public ResponseEntity<user> saveUser(@RequestBody user user){
-        return ResponseEntity.ok().body(userService.saveUser(user));
+    public ResponseEntity<user> saveUser(@ModelAttribute user user, @RequestParam("image")MultipartFile multipartFile) throws IOException {
+        return ResponseEntity.ok().body(userService.saveUser(user,multipartFile));
     }
 
     @PostMapping("/role")

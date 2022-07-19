@@ -1,8 +1,10 @@
 package com.rayen.task.manager.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.core.io.Resource;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -24,6 +26,8 @@ public class user {
     private String username;
     @Column
     private String password;
+    @Column(unique = true)
+    private String imageName;
     @ManyToMany
     @JoinTable(
             name = "user_role",
@@ -31,4 +35,7 @@ public class user {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Collection<role> roles = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private Collection<tasks> tasks = new ArrayList<>();
 }

@@ -20,19 +20,24 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static java.nio.file.Files.copy;
+import static java.nio.file.Paths.get;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class userServiceImp implements userService, UserDetailsService {
 
+    private static final String DIRECTORY = System.getProperty("user.home") + "/Desktop/task-manager/upload";
     @Autowired
     private userRepo userRepo;
     @Autowired
@@ -53,7 +58,7 @@ public class userServiceImp implements userService, UserDetailsService {
     }
 
     @Override
-    public user saveUser(user user) throws forbiddenException{
+    public user saveUser(user user, MultipartFile multipartFile) throws forbiddenException, IOException {
         if ((user.getPassword().length()<8)|| (checkUserFunctions.haveLettre(user.getPassword()) == false) || (checkUserFunctions.haveNum(user.getPassword())) == false){
             throw new forbiddenException("password invalid !");
         }
@@ -62,6 +67,17 @@ public class userServiceImp implements userService, UserDetailsService {
         }
         if (!checkUserFunctions.isEmail(user.getEmail())){
             throw new forbiddenException("email invalid !");
+        }
+        String type = multipartFile.getContentType().substring(multipartFile.getContentType().indexOf("/")+1);
+        if ((!type.equals("jpeg")) && (!type.equals("png"))){
+            throw new forbiddenException("type of file must be jpeg or png !");
+        }
+        if (!multipartFile.isEmpty()){
+            user userSaved = userRepo.save(user);
+            String imageName = userSaved.getId()+"."+type;
+            Path fileStorage = get(DIRECTORY,imageName).toAbsolutePath().normalize();
+            copy(multipartFile.getInputStream(),fileStorage,REPLACE_EXISTING);
+            user.setImageName(imageName);
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
@@ -80,7 +96,7 @@ public class userServiceImp implements userService, UserDetailsService {
     }
 
     @Override
-    public user getUser(long id, String request) {
+    public user getUser(long id, String request) throws IOException {
         String token = request.substring("Bearer ".length());
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
         JWTVerifier verifier = JWT.require(algorithm).build();
@@ -90,6 +106,7 @@ public class userServiceImp implements userService, UserDetailsService {
         if (!usernameToken.equals(username)){
             throw new forbiddenException("you can't get another user !");
         }
+
         return userRepo.findById(id).get();
     }
 
