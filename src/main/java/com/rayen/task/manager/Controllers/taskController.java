@@ -4,12 +4,14 @@ import com.rayen.task.manager.Exceptions.forbiddenException;
 import com.rayen.task.manager.Model.tasks;
 import com.rayen.task.manager.Services.taskServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import static java.nio.file.Files.copy;
 import static java.nio.file.Paths.get;
@@ -25,19 +27,38 @@ public class taskController {
     private taskServices taskServices;
 
     @PostMapping("")
-    public tasks addTask(@RequestBody tasks tasks){
-        return taskServices.addTask(tasks);
+    public ResponseEntity<tasks> addTask(@RequestBody tasks tasks){
+        return ResponseEntity.ok().body(taskServices.addTask(tasks));
     }
 
-    @PostMapping("/upload")
-    public String upload(@RequestParam("image") MultipartFile multipartFile) throws IOException {
-        String imageName= StringUtils.cleanPath(multipartFile.getOriginalFilename());
-        String type = multipartFile.getContentType().substring(multipartFile.getContentType().indexOf("/")+1);
-        if ((!type.equals("jpeg")) && (!type.equals("png"))){
-            throw new forbiddenException("type of file must be jpeg or png !");
-        }
-        Path fileStorage = get(DIRECTORY,"13."+type).toAbsolutePath().normalize();
-        copy(multipartFile.getInputStream(),fileStorage,REPLACE_EXISTING);
-        return imageName;
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTask(@PathVariable long id){
+        return ResponseEntity.ok().body(taskServices.deleteTask(id));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<tasks>> getAllTasks(){
+        return ResponseEntity.ok().body(taskServices.getAll());
+    }
+
+    //ADMIN
+    @GetMapping("/{id}")
+    public ResponseEntity<tasks> getTask(@PathVariable long id){
+        return ResponseEntity.ok().body(taskServices.getOneTask(id));
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<tasks>> getTasksByUser(@PathVariable long id,@RequestHeader String Authorization){
+        return ResponseEntity.ok().body(taskServices.getTasksByUser(id,Authorization));
+    }
+
+    @PostMapping("/{idT}/user/{idU}")
+    public void assignTaskToUser(@PathVariable("idU") long idU,@PathVariable("idT") long idT){
+        taskServices.assignTaskToUser(idU,idT);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<tasks> assignDone(@PathVariable long id,@RequestHeader String Authorization){
+        return ResponseEntity.ok().body(taskServices.assignDone(id,Authorization));
     }
 }
