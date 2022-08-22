@@ -134,4 +134,18 @@ public class userServiceImp implements userService, UserDetailsService {
         userRepo.delete(userRepo.findById(id).get());
         return "profile has deleted !";
     }
+
+    @Override
+    public long getId(String username, String request) throws IOException{
+        String token = request.substring("Bearer ".length());
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String usernameToken = decodedJWT.getSubject();
+        if (!username.equals(usernameToken)){
+            throw new forbiddenException("you can't get id of another user !");
+        }
+        user user = userRepo.findByUsername(username);
+        return user.getId();
+    }
 }

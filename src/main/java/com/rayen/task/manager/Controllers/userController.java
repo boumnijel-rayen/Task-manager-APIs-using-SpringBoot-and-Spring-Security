@@ -33,6 +33,10 @@ public class userController {
     public ResponseEntity<user> getUser(@PathVariable long id, @RequestHeader String Authorization) throws IOException {
         return ResponseEntity.ok().body(userService.getUser(id,Authorization));
     }
+    @GetMapping("/username/{username}")
+    public ResponseEntity<Long> getId(@PathVariable String username,@RequestHeader String Authorization) throws IOException{
+        return ResponseEntity.ok().body(userService.getId(username,Authorization));
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable long id,@RequestHeader String Authorization){
         return ResponseEntity.ok().body(userService.deleteUser(id,Authorization));

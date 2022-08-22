@@ -15,4 +15,5 @@ public interface userService {
     String deleteUser(long id,String request);
     List<user> getUsers();
     List<role> getRoles();
+    long getId(String username,String request) throws IOException;
 }

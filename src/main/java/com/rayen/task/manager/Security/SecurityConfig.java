@@ -15,6 +15,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.http.HttpMethod.*;
 
@@ -36,6 +41,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         String[] ALL_ROLES ={"ROLE_USER","ROLE_ADMIN"};
         http.csrf().disable();
+        http.cors().configurationSource(request-> {
+            CorsConfiguration configuration = new CorsConfiguration();
+            configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+            configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+            configuration.setAllowedHeaders(List.of("*"));
+            return configuration;
+        });
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeHttpRequests().antMatchers("/login").permitAll();
         http.authorizeHttpRequests().antMatchers(POST,"/user").permitAll();
@@ -50,6 +62,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeHttpRequests().antMatchers(GET,"/task").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(GET,"/task/{id}").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(GET,"/task/user/{id}").hasAnyAuthority(ALL_ROLES);
+        http.authorizeHttpRequests().antMatchers(GET,"/user/username/{username}").hasAnyAuthority(ALL_ROLES);
         http.authorizeHttpRequests().antMatchers(POST,"/task/{idT}/user/{idU}").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(PUT,"/task/{id}").hasAnyAuthority(ALL_ROLES);
         http.authorizeHttpRequests().anyRequest().permitAll();
