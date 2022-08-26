@@ -48,15 +48,13 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         roles = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         String access_Token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 120 * 60 * 1000))
                 .withIssuer(request.getRequestURI().toString())
                 .withClaim("roles", roles)
                 .sign(algorithm);
         response.setHeader("access_Token",access_Token);
         Map<String,String> responseData = new HashMap<>();
         responseData.put("token",access_Token);
-        responseData.put("roles",roles.toString());
-        responseData.put("username",user.getUsername());
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(),responseData);
     }

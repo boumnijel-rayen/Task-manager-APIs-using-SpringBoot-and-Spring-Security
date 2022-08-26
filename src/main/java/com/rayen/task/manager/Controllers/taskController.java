@@ -2,6 +2,7 @@ package com.rayen.task.manager.Controllers;
 
 import com.rayen.task.manager.Exceptions.forbiddenException;
 import com.rayen.task.manager.Model.tasks;
+import com.rayen.task.manager.Services.formats.forChartDashboard;
 import com.rayen.task.manager.Services.taskServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.util.List;
 
 import static java.nio.file.Files.copy;
@@ -58,7 +60,32 @@ public class taskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<tasks> assignDone(@PathVariable long id,@RequestHeader String Authorization){
+    public ResponseEntity<tasks> assignDone(@PathVariable long id,@RequestHeader String Authorization) throws ParseException {
         return ResponseEntity.ok().body(taskServices.assignDone(id,Authorization));
+    }
+
+    @GetMapping("/dashboard/tasksDone")
+    public int tasksDone(){
+        return taskServices.tasksDone();
+    }
+
+    @GetMapping("/dashboard/tasksLate")
+    public int tasksLate(){
+        return taskServices.tasksLate();
+    }
+
+    @GetMapping("/dashboard/tasksfrotoday")
+    public int tasksForToday(){
+        return taskServices.tasksForToday();
+    }
+
+    @GetMapping("/dashboard/chart")
+    public List<forChartDashboard> chartDashboard(){
+        return taskServices.chartDashboard();
+    }
+
+    @GetMapping("/test")
+    public int test(){
+        return taskServices.tasksDone();
     }
 }
