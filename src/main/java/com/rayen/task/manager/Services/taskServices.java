@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rayen.task.manager.Exceptions.NotFoundException;
 import com.rayen.task.manager.Exceptions.forbiddenException;
 import com.rayen.task.manager.Model.tasks;
@@ -12,12 +11,9 @@ import com.rayen.task.manager.Model.user;
 import com.rayen.task.manager.Repo.tasksRepo;
 import com.rayen.task.manager.Repo.userRepo;
 import com.rayen.task.manager.Services.formats.forChartDashboard;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -26,8 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 @Transactional
@@ -104,7 +98,7 @@ public class taskServices {
         tasks.setDone(true);
         Date dateNow = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(formatter.format(dateNow), DateTimeFormatter.ISO_DATE);
+        LocalDate date = LocalDate.parse(formatter.format(dateNow), DateTimeFormatter.ISO_DATE).plusDays(1);
         Date doneTime = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
         tasks.setDoneTime(doneTime);
         return tasksRepo.save(tasks);
@@ -136,7 +130,7 @@ public class taskServices {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         for(int i=0;i<10;i++){
-            LocalDate date = LocalDate.parse(formatter.format(date1), DateTimeFormatter.ISO_DATE).minusDays(i);
+            LocalDate date = LocalDate.parse(formatter.format(date1), DateTimeFormatter.ISO_DATE).minusDays(i-1);
             Date doneTime = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
             forChartDashboard forChartDashboard = new forChartDashboard();
             forChartDashboard.setDate(doneTime);
@@ -144,6 +138,24 @@ public class taskServices {
             result.add(forChartDashboard);
         }
         return result;
+    }
+
+    public int getNumberOfTasksPerUser(long id,String request){
+        String token = request.substring("Bearer ".length());
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String usernameToken = decodedJWT.getSubject();
+        String username = userRepo.findById(id).get().getUsername();
+        List<String> roles = new ArrayList<>();
+        roles = decodedJWT.getClaim("roles").asList(String.class);
+        if ((!usernameToken.equals(username)) && (!roles.contains("RO" +
+                "LE_ADMIN")) ){
+            throw new forbiddenException("you can't get another user !");
+        }
+        user user = userRepo.findById(id).get();
+
+        return tasksRepo.findByUser(user).size();
     }
 
 }

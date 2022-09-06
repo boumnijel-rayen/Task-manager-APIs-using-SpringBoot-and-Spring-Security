@@ -5,6 +5,7 @@ import com.rayen.task.manager.Model.user;
 import com.rayen.task.manager.Services.userService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,13 +34,17 @@ public class userController {
     public ResponseEntity<user> getUser(@PathVariable long id, @RequestHeader String Authorization) throws IOException {
         return ResponseEntity.ok().body(userService.getUser(id,Authorization));
     }
+    @GetMapping("/image/{id}")
+    public ResponseEntity<Resource> getImageUser(@PathVariable long id, @RequestHeader String Authorization) throws IOException{
+        return userService.getImageUser(id,Authorization);
+    }
     @GetMapping("/username/{username}")
     public ResponseEntity<Long> getId(@PathVariable String username,@RequestHeader String Authorization) throws IOException{
         return ResponseEntity.ok().body(userService.getId(username,Authorization));
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable long id,@RequestHeader String Authorization){
-        return ResponseEntity.ok().body(userService.deleteUser(id,Authorization));
+    public ResponseEntity<String> deleteUser(@PathVariable long id){
+        return ResponseEntity.ok().body(userService.deleteUser(id));
     }
 
     @PostMapping("")

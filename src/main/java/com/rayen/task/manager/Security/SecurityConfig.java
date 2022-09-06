@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().configurationSource(request-> {
             CorsConfiguration configuration = new CorsConfiguration();
             configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-            configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+            configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT"));
             configuration.setAllowedHeaders(List.of("*"));
             return configuration;
         });
@@ -56,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeHttpRequests().antMatchers(POST,"/user/role").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(POST,"/user/role/addtouser").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(GET,"/user/**").hasAnyAuthority(ALL_ROLES);
-        http.authorizeHttpRequests().antMatchers(DELETE,"/user/**").hasAnyAuthority(ALL_ROLES);
+        http.authorizeHttpRequests().antMatchers(DELETE,"/user/**").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(POST,"/task").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(DELETE,"/task/**").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().antMatchers(GET,"/task").hasAnyAuthority("ROLE_ADMIN");

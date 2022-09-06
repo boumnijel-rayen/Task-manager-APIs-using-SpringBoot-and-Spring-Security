@@ -11,4 +11,5 @@ public interface tasksRepo extends JpaRepository<tasks,Long> {
     List<tasks> findByUser(user user);
     List<tasks> findByDoneEquals(boolean done);
     List<tasks> findByDoneTime(Date date);
+
 }

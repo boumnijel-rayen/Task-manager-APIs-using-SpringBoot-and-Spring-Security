@@ -1,23 +1,14 @@
 package com.rayen.task.manager.Controllers;
 
-import com.rayen.task.manager.Exceptions.forbiddenException;
 import com.rayen.task.manager.Model.tasks;
 import com.rayen.task.manager.Services.formats.forChartDashboard;
 import com.rayen.task.manager.Services.taskServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.List;
 
-import static java.nio.file.Files.copy;
-import static java.nio.file.Paths.get;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @RestController
 @RequestMapping("/task")
@@ -84,8 +75,8 @@ public class taskController {
         return taskServices.chartDashboard();
     }
 
-    @GetMapping("/test")
-    public int test(){
-        return taskServices.tasksDone();
+    @GetMapping("/nbTasks/{id}")
+    public ResponseEntity<Integer> getNbTasksPerUser(@PathVariable long id,@RequestHeader String Authorization){
+        return ResponseEntity.ok().body(taskServices.getNumberOfTasksPerUser(id,Authorization));
     }
 }
