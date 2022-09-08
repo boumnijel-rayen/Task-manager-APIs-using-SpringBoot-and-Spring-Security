@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 
@@ -78,5 +79,20 @@ public class taskController {
     @GetMapping("/nbTasks/{id}")
     public ResponseEntity<Integer> getNbTasksPerUser(@PathVariable long id,@RequestHeader String Authorization){
         return ResponseEntity.ok().body(taskServices.getNumberOfTasksPerUser(id,Authorization));
+    }
+
+    @GetMapping("/Done/user/{id}")
+    public ResponseEntity<List<tasks>> getDonePerUser(@PathVariable long id,@RequestHeader String Authorization){
+        return ResponseEntity.ok().body(taskServices.getDonePerUser(id,Authorization));
+    }
+
+    @GetMapping("/retard/user/{id}")
+    public ResponseEntity<List<tasks>> getRetardPerUser(@PathVariable long id,@RequestHeader String Authorization){
+        return ResponseEntity.ok().body(taskServices.getRetardPerUser(id,Authorization));
+    }
+
+    @GetMapping("/cours/user/{id}")
+    public ResponseEntity<List<tasks>> getCoursPerUser(@PathVariable long id,@RequestHeader String Authorization){
+        return ResponseEntity.ok().body(taskServices.getCoursPerUser(id,Authorization));
     }
 }

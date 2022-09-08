@@ -158,4 +158,84 @@ public class taskServices {
         return tasksRepo.findByUser(user).size();
     }
 
+    public List<tasks> getDonePerUser(long id, String request) {
+        String token = request.substring("Bearer ".length());
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String usernameToken = decodedJWT.getSubject();
+        String username = userRepo.findById(id).get().getUsername();
+        List<String> roles = new ArrayList<>();
+        roles = decodedJWT.getClaim("roles").asList(String.class);
+        if ((!usernameToken.equals(username)) && (!roles.contains("RO" +
+                "LE_ADMIN")) ){
+            throw new forbiddenException("you can't get another user !");
+        }
+
+        List<tasks> tasks =  new ArrayList<>();
+        List<tasks> result = new ArrayList<>();
+        tasks = tasksRepo.findByUser(userRepo.findById(id).get());
+        tasks.forEach(task -> {
+            if (task.getDone() == true){
+                result.add(task);
+            }
+        });
+
+        return result;
+    }
+
+    public List<tasks> getRetardPerUser(long id, String request) {
+        String token = request.substring("Bearer ".length());
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String usernameToken = decodedJWT.getSubject();
+        String username = userRepo.findById(id).get().getUsername();
+        List<String> roles = new ArrayList<>();
+        roles = decodedJWT.getClaim("roles").asList(String.class);
+        if ((!usernameToken.equals(username)) && (!roles.contains("RO" +
+                "LE_ADMIN")) ){
+            throw new forbiddenException("you can't get another user !");
+        }
+
+        List<tasks> tasks =  new ArrayList<>();
+        List<tasks> result = new ArrayList<>();
+        Date currentDate = new Date();
+        tasks = tasksRepo.findByUser(userRepo.findById(id).get());
+        tasks.forEach(task -> {
+            if ( (task.getDone() == false) && (task.getEnd().after(currentDate)) ){
+                result.add(task);
+            }
+        });
+
+        return result;
+    }
+
+    public List<tasks> getCoursPerUser(long id, String request) {
+        String token = request.substring("Bearer ".length());
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String usernameToken = decodedJWT.getSubject();
+        String username = userRepo.findById(id).get().getUsername();
+        List<String> roles = new ArrayList<>();
+        roles = decodedJWT.getClaim("roles").asList(String.class);
+        if ((!usernameToken.equals(username)) && (!roles.contains("RO" +
+                "LE_ADMIN")) ){
+            throw new forbiddenException("you can't get another user !");
+        }
+
+        List<tasks> tasks =  new ArrayList<>();
+        List<tasks> result = new ArrayList<>();
+        Date currentDate = new Date();
+        tasks = tasksRepo.findByUser(userRepo.findById(id).get());
+        tasks.forEach(task -> {
+            if ( (task.getDone() == false) && (task.getEnd().before(currentDate)) ){
+                result.add(task);
+            }
+        });
+
+        return result;
+    }
+
 }

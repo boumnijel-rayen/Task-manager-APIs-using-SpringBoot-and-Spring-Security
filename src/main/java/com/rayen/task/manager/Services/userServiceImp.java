@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rayen.task.manager.Exceptions.forbiddenException;
 import com.rayen.task.manager.Model.role;
+import com.rayen.task.manager.Model.tasks;
 import com.rayen.task.manager.Model.user;
 import com.rayen.task.manager.Repo.roleRepo;
 import com.rayen.task.manager.Repo.userRepo;
@@ -117,7 +118,10 @@ public class userServiceImp implements userService, UserDetailsService {
         DecodedJWT decodedJWT = verifier.verify(token);
         String usernameToken = decodedJWT.getSubject();
         String username = userRepo.findById(id).get().getUsername();
-        if (!usernameToken.equals(username)){
+        List<String> roles = new ArrayList<>();
+        roles = decodedJWT.getClaim("roles").asList(String.class);
+        if ((!usernameToken.equals(username)) && (!roles.contains("RO" +
+                "LE_ADMIN")) ){
             throw new forbiddenException("you can't get another user !");
         }
 
@@ -182,4 +186,5 @@ public class userServiceImp implements userService, UserDetailsService {
         user user = userRepo.findByUsername(username);
         return user.getId();
     }
+
 }
