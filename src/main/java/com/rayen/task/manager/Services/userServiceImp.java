@@ -180,11 +180,19 @@ public class userServiceImp implements userService, UserDetailsService {
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);
         String usernameToken = decodedJWT.getSubject();
-        if (!username.equals(usernameToken)){
+        List<String> roles = new ArrayList<>();
+        roles = decodedJWT.getClaim("roles").asList(String.class);
+        if ((!usernameToken.equals(username)) && (!roles.contains("RO" +
+                "LE_ADMIN")) ){
             throw new forbiddenException("you can't get id of another user !");
         }
         user user = userRepo.findByUsername(username);
         return user.getId();
     }
 
+    @Override
+    public Boolean isExiste(String username) {
+        user user = userRepo.findByUsername(username);
+        return user!=null;
+    }
 }

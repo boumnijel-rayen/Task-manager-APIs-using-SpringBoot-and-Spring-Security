@@ -34,6 +34,12 @@ public class taskServices {
 
     public tasks addTask(tasks tasks){
         tasks.setDone(false);
+        if (tasks.getTitle().length() <= 0){
+            throw new forbiddenException("title is required");
+        }
+        if (tasks.getDescription().length() < 10){
+            throw new forbiddenException("description must be more than 10 character");
+        }
         if (tasks.getEnd().before(tasks.getStart())){
             throw new forbiddenException("error on dates");
         }
@@ -43,6 +49,7 @@ public class taskServices {
     public String deleteTask(long id){
         try{
             tasks tasks = tasksRepo.findById(id).get();
+            tasks.setUser(null);
             tasksRepo.delete(tasks);
         }catch (Exception e){
             throw new NotFoundException("task not found");
@@ -203,7 +210,7 @@ public class taskServices {
         Date currentDate = new Date();
         tasks = tasksRepo.findByUser(userRepo.findById(id).get());
         tasks.forEach(task -> {
-            if ( (task.getDone() == false) && (task.getEnd().after(currentDate)) ){
+            if ( (task.getDone() == false) && (task.getEnd().before(currentDate)) ){
                 result.add(task);
             }
         });
@@ -230,7 +237,7 @@ public class taskServices {
         Date currentDate = new Date();
         tasks = tasksRepo.findByUser(userRepo.findById(id).get());
         tasks.forEach(task -> {
-            if ( (task.getDone() == false) && (task.getEnd().before(currentDate)) ){
+            if ( (task.getDone() == false) && (task.getEnd().after(currentDate)) ){
                 result.add(task);
             }
         });

@@ -20,4 +20,5 @@ public interface userService {
     List<user> getUsers();
     List<role> getRoles();
     long getId(String username,String request) throws IOException;
+    Boolean isExiste(String username);
 }
